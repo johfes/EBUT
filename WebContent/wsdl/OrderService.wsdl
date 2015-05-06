@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.htwg-konstanz.de/ebsf/ws/order" xmlns:opentrans="http://www.opentrans.org/XMLSchema/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="OrderService" targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/order">
+	<types>
+		<xsd:schema targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/order" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+			<xsd:import namespace="http://www.opentrans.org/XMLSchema/1.0" schemaLocation="openTRANS_1_0.xsd"/>
+			<element name="OrderServiceResponse">
+				<complexType>
+					<sequence>
+						<element ref="opentrans:ORDERRESPONSE"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="OrderServiceRequest">
+				<complexType>
+					<sequence>
+						<element name="userName" type="xsd:string"/>
+						<element name="password" type="xsd:string"/>
+						<element ref="opentrans:ORDER"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="OrderServiceFault" type="xsd:string"/>
+		</xsd:schema>
+	</types>
+	<message name="OrderServiceRequest">
+		<part name="request" element="tns:OrderServiceRequest"/>
+	</message>
+	<message name="OrderServiceResponse">
+		<part name="response" element="tns:OrderServiceResponse"/>
+	</message>
+	<message name="OrderServiceFault">
+		<part name="fault" element="tns:OrderServiceFault"/>
+	</message>
+	<portType name="OrderServicePortType">
+		<operation name="purchaseOrder">
+			<input name="OrderServiceRequest" message="tns:OrderServiceRequest"/>
+			<output name="OrderServiceResponse" message="tns:OrderServiceResponse"/>
+			<fault name="OrderServiceFault" message="tns:OrderServiceFault"/>
+		</operation>
+	</portType>
+	<binding name="OrderServiceBinding" type="tns:OrderServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="purchaseOrder">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="OrderServiceFault">
+				<soap:fault name="OrderServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+	<service name="OrderService">
+		<port name="OrderServicePort" binding="tns:OrderServiceBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+</definitions>

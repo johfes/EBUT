@@ -1,0 +1,100 @@
+<project name="eBus-Framework-Demo-WTP" default="javadoc" basedir=".">
+
+	<!-- =================================================================== -->
+	<!-- Project Properties                                                  -->
+	<!-- =================================================================== -->
+	<property name="project" value="eBus-Framework-Demo-WTP" />
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="res.dir" value="${basedir}/resources" />
+	<property name="javadoc.dir" value="${basedir}/javadoc/api" />
+	<property name="webinf.dir" value="${basedir}/WebContent/WEB-INF" />
+	<property name="classes.dir" value="${webinf.dir}/classes" />
+	<property name="lib.home" value="${webinf.dir}/lib" />
+	<property name="install.dir" value="${basedir}/install" />
+	<property name="db.name" value="ebus" />
+	<property name="db.user" value="manager" />
+	<property name="db.password" value="manager" />
+
+	<!-- =================================================================== -->
+	<!-- Generate standard javadoc                                           -->
+	<!-- =================================================================== -->
+	<target name="javadoc">
+		<echo message="Starting eBus-Framework standard javadoc generation" />
+
+		<javadoc destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="eBus-Framework API" stylesheetfile="${javadoc.dir}/stylesheet.css">
+
+			<packageset dir="${src.dir}" defaultexcludes="yes">
+				<include name="de/htwg_konstanz/ebus/wholesaler/**" />
+			</packageset>
+
+			<group title="Demo Packages" packages="de.htwg_konstanz.ebus.wholesaler.demo*" />
+			<group title="WS Packages" packages="de.htwg_konstanz.ebus.wholesaler.ws*" />
+			<doctitle>
+				<![CDATA[<h1>Wholesaler-WebDemo</h1>]]></doctitle>
+		<bottom>
+			<![CDATA[<i>Copyright &#169; 2006-2011 HTWG Konstanz. <br>Fakultaet Informatik - Department of Computer Science <br>E-Business Technologien <br>Prof. Dr.-Ing. Juergen Waesch <br>Dipl. -Inf. (FH) Thomas Dietrich</i>]]></bottom>
+					<tag name="todo" scope="all" description="To do:" />
+					<link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" packagelistLoc="C:\tmp" />
+					<link href="http://developer.java.sun.com/developer/products/xml/docs/api/" />
+				</javadoc>
+			</target>
+
+			<path id="jaxws.classpath">
+				<fileset dir="${lib.home}">
+					<include name="*.jar" />
+				</fileset>
+			</path>
+
+			<taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+				<classpath refid="jaxws.classpath">
+				</classpath>
+			</taskdef>
+
+			<target name="wsimport-ProductCatalogService">
+				<wsimport debug="true" verbose="true" destdir="${classes.dir}" sourcedestdir="${basedir}/src" wsdl="${webinf.dir}/wsdl/ProductCatalogService.wsdl" package="de.htwg_konstanz.ebus.ess.ws.catalog">
+				</wsimport>
+			</target>
+
+			<target name="wsimport-OrderService">
+				<wsimport debug="true" verbose="true" destdir="${classes.dir}" sourcedestdir="${basedir}/src" wsdl="${webinf.dir}/wsdl/OrderService.wsdl" package="de.htwg_konstanz.ebus.ess.ws.order">
+				</wsimport>
+			</target>
+
+			<target name="wsimport-DeliveryService">
+				<wsimport debug="true" verbose="true" destdir="${classes.dir}" sourcedestdir="${basedir}/src" wsdl="${webinf.dir}/wsdl/DeliveryService.wsdl" package="de.htwg_konstanz.ebus.ess.ws.delivery">
+				</wsimport>
+			</target>
+
+			<target name="wsimport-InvoiceService">
+				<wsimport debug="true" verbose="true" destdir="${classes.dir}" sourcedestdir="${basedir}/src" wsdl="${webinf.dir}/wsdl/InvoiceService.wsdl" package="de.htwg_konstanz.ebus.ess.ws.invoice">
+				</wsimport>
+			</target>
+
+			<taskdef name="wsgen" classname="com.sun.tools.ws.ant.WsGen">
+				<classpath refid="jaxws.classpath">
+				</classpath>
+			</taskdef>
+
+			<target name="wsgen">
+				<wsgen sei="de.htwg_konstanz.ebus.ess.ws.invoice.InvoiceServicePortType">
+					<classpath path="${classes.dir}" />
+				</wsgen>
+			</target>
+	
+			<!-- =================================================================== -->
+			<!-- create example db                                                   -->
+			<!-- =================================================================== -->
+			<target name="create-db">
+				<echo message="Starting example database table generation" />
+				<input message="All data is going to be deleted from DB ${db.name} continue (y/n)?" validargs="y,n" addproperty="do.delete" />
+				<condition property="do.abort">
+					<equals arg1="n" arg2="${do.delete}" />
+				</condition>
+				<fail if="do.abort">Build aborted by user.</fail>
+				<exec dir="${install.dir}" executable="${install.dir}/createdb.bat">
+					<arg line="${db.name} ${db.user} ${db.password}" />
+				</exec>
+			</target>
+		</project>
+
+

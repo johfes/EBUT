@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.htwg-konstanz.de/ebsf/ws/delivery" xmlns:opentrans="http://www.opentrans.org/XMLSchema/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="DeliveryService" targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/delivery">
+	<types>
+		<xsd:schema targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/delivery" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+			<xsd:import namespace="http://www.opentrans.org/XMLSchema/1.0" schemaLocation="openTRANS_1_0.xsd"/>
+			<element name="DeliveryServiceResponse">
+				<complexType/>
+			</element>
+			<element name="DeliveryServiceRequest">
+				<complexType>
+					<sequence>
+						<element name="userName" type="xsd:string"/>
+						<element name="password" type="xsd:string"/>
+						<element ref="opentrans:DISPATCHNOTIFICATION"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="DeliveryServiceFault" type="xsd:string"/>
+		</xsd:schema>
+	</types>
+	<message name="DeliveryServiceRequest">
+		<part name="request" element="tns:DeliveryServiceRequest"/>
+	</message>
+	<message name="DeliveryServiceResponse">
+		<part name="response" element="tns:DeliveryServiceResponse"/>
+	</message>
+	<message name="DeliveryServiceFault">
+		<part name="fault" element="tns:DeliveryServiceFault"/>
+	</message>
+	<portType name="DeliveryServicePortType">
+		<operation name="handleOrderDelivery">
+			<input name="DeliveryServiceRequest" message="tns:DeliveryServiceRequest"/>
+			<output name="DeliveryServiceResponse" message="tns:DeliveryServiceResponse"/>
+			<fault name="DeliveryServiceFault" message="tns:DeliveryServiceFault"/>
+		</operation>
+	</portType>
+	<binding name="DeliveryServiceBinding" type="tns:DeliveryServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="handleOrderDelivery">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="DeliveryServiceFault">
+				<soap:fault name="DeliveryServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+	<service name="DeliveryService">
+		<port name="DeliveryServicePort" binding="tns:DeliveryServiceBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+</definitions>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<endpoints 
+	xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime" 
+	version="2.0">
+	
+	<endpoint name="OrderService"
+		interface="de.htwg_konstanz.ebus.wholesaler.ws.order.OrderServicePortType"
+		implementation="de.htwg_konstanz.ebus.wholesaler.ws.order.OrderServiceImpl"
+		url-pattern="/OrderService" />
+</endpoints>

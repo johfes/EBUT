@@ -1,0 +1,101 @@
+html {
+	font-family: Verdana, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #000000;
+}
+
+body {
+	margin-left: 5;
+	margin-left: 10;
+	padding: 0;
+}
+
+table { 
+	font-family: Verdana, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #000000;
+	text-align: left; 
+	border-collapse: collapse; 
+}
+
+th { 
+	padding: 4px; 
+	background: silver;
+}
+
+td { 
+	padding: 1px; 
+}
+
+.dataTable { 
+	font-family: Verdana, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #000000;
+	text-align: left; 
+	border-collapse: collapse; 
+}
+
+.dataTable td { 
+	padding: 3px;
+	border: 1px solid silver;
+}
+
+.dataTable th { 
+	background: navy; 
+	color: white; 
+	text-align: center;
+}
+
+.dataTable tr:hover { 
+	background: #FEFFAF; 
+	color: #000000; 
+}
+
+input {
+	font-family: Verdana;
+}
+
+select {
+	font-family: Verdana;
+}
+
+h1 {
+	font-size: 14px;
+	border-bottom: 1px solid #000000;
+	margin: 0 0 15px 0;
+	padding-bottom: 2px;
+}
+
+h2 {
+	font-size: 11px;
+	border-bottom: 1px dotted #000000;
+	margin: 15px 0 15px 0;
+	padding-bottom: 2px;
+}
+
+p {
+	margin-bottom: 15px;
+	line-height: 15px;
+}
+
+hr {
+	height: 1px;
+	background-color: #93b4d9;
+	border: none;
+	margin: 25px 0 20px 0;
+}
+
+a:link, a:visited, a:active {
+	color: #1860A8;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:hover {
+	color: #1860A8;
+	text-decoration: underline;
+	font-weight: bold;
+}

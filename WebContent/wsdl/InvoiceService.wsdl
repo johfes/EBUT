@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.htwg-konstanz.de/ebsf/ws/invoice" xmlns:opentrans="http://www.opentrans.org/XMLSchema/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="InvoiceService" targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/invoice">
+	<types>
+		<xsd:schema targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/invoice" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+			<xsd:import namespace="http://www.opentrans.org/XMLSchema/1.0" schemaLocation="openTRANS_1_0.xsd"/>
+			<element name="InvoiceServiceResponse">
+				<complexType/>
+			</element>
+			<element name="InvoiceServiceRequest">
+				<complexType>
+					<sequence>
+						<element name="userName" type="xsd:string"/>
+						<element name="password" type="xsd:string"/>
+						<element ref="opentrans:INVOICE"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="InvoiceServiceFault" type="xsd:string"/>
+		</xsd:schema>
+	</types>
+	<message name="InvoiceServiceRequest">
+		<part name="request" element="tns:InvoiceServiceRequest"/>
+	</message>
+	<message name="InvoiceServiceResponse">
+		<part name="response" element="tns:InvoiceServiceResponse"/>
+	</message>
+	<message name="InvoiceServiceFault">
+		<part name="fault" element="tns:InvoiceServiceFault"/>
+	</message>
+	<portType name="InvoiceServicePortType">
+		<operation name="handleOrderInvoice">
+			<input name="InvoiceServiceRequest" message="tns:InvoiceServiceRequest"/>
+			<output name="InvoiceServiceResponse" message="tns:InvoiceServiceResponse"/>
+			<fault name="InvoiceServiceFault" message="tns:InvoiceServiceFault"/>
+		</operation>
+	</portType>
+	<binding name="InvoiceServiceBinding" type="tns:InvoiceServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="handleOrderInvoice">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="InvoiceServiceFault">
+				<soap:fault name="InvoiceServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+	<service name="InvoiceService">
+		<port name="InvoiceServicePort" binding="tns:InvoiceServiceBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+</definitions>

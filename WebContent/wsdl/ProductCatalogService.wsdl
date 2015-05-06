@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.htwg-konstanz.de/ebsf/ws/product_catalog" xmlns:bmecat="http://www.bmecat.org/XMLSchema/1.2/bmecat_new_catalog" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="ProductCatalogService" targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/product_catalog">
+	<types>
+		<xsd:schema targetNamespace="http://www.htwg-konstanz.de/ebsf/ws/product_catalog" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+			<xsd:import namespace="http://www.bmecat.org/XMLSchema/1.2/bmecat_new_catalog" schemaLocation="bmecat_new_catalog_1_2_simple_eps_V0.96.xsd"/>
+			<element name="ProductCatalogServiceResponse">
+				<complexType>
+					<sequence>
+						<element ref="bmecat:BMECAT"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="ProductCatalogServiceRequest">
+				<complexType>
+					<sequence>
+						<element name="userName" type="xsd:string"/>
+						<element name="password" type="xsd:string"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="ProductCatalogServiceFault" type="xsd:string"/>
+		</xsd:schema>
+	</types>
+	<message name="ProductCatalogServiceRequest">
+		<part name="request" element="tns:ProductCatalogServiceRequest"/>
+	</message>
+	<message name="ProductCatalogServiceResponse">
+		<part name="response" element="tns:ProductCatalogServiceResponse"/>
+	</message>
+	<message name="ProductCatalogServiceFault">
+		<part name="fault" element="tns:ProductCatalogServiceFault"/>
+	</message>
+	<portType name="ProductCatalogServicePortType">
+		<operation name="getProductCatalog">
+			<input name="ProductCatalogServiceRequest" message="tns:ProductCatalogServiceRequest"/>
+			<output name="ProductCatalogServiceResponse" message="tns:ProductCatalogServiceResponse"/>
+			<fault name="ProductCatalogServiceFault" message="tns:ProductCatalogServiceFault"/>
+		</operation>
+	</portType>
+	<binding name="ProductCatalogServiceBinding" type="tns:ProductCatalogServicePortType">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="getProductCatalog">
+			<soap:operation soapAction=""/>
+			<input>
+				<soap:body use="literal"/>
+			</input>
+			<output>
+				<soap:body use="literal"/>
+			</output>
+			<fault name="ProductCatalogServiceFault">
+				<soap:fault name="ProductCatalogServiceFault" use="literal"/>
+			</fault>
+		</operation>
+	</binding>
+	<service name="ProductCatalogService">
+		<port name="ProductCatalogServicePort" binding="tns:ProductCatalogServiceBinding">
+			<soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+		</port>
+	</service>
+</definitions>

@@ -18,19 +18,20 @@
 <%@ include file="authentication.jsp" %>
 <%@ include file="navigation.jspfragment" %>
 
-<h1>Export: Export Product Catalog</h1>
+<h1>EXPORT Product Catalog</h1>
 <table>
 	<tr>
-		<th>Export specification</th>
+		<th>By default, the whole catalog is exported.You can restrict your export by typing a string which has to be contained in the short description of the article(s) to export</th>
 		<th colspan="2">View</th>
 		<th colspan="2">Download</th>
 	</tr>
-	<tr>
-		<td>whole product catalog</td>
-		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=BMECAT") %>">BMECAT</a> </td>
-		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=XHTML") %>">xhtml</a></td>
-		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=BMECAT&download=yes") %>">BMECAT</a> </td>
-	</tr>
+<!-- 	<tr> -->
+<!-- 		<td>whole product catalog</td> -->
+<%-- 		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=BMECAT") %>">BMECAT</a> </td> --%>
+<%-- 		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=XHTML") %>">XHTML</a></td> --%>
+<%-- 		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=BMECAT&download=yes") %>">BMECAT</a> </td> --%>
+<%-- 		<td><a href="<%= response.encodeURL("controllerservlet?action=export&view=XHTML&download=yes") %>">XHTML</a> </td> --%>
+<!-- 	</tr> -->
 	<tr>
 	
 		<td>
@@ -48,8 +49,9 @@
 			}
 		</script>
 		<td><a onclick="submitScript('BMECAT');">BMECAT</a></td>
-		<td><a onclick="submitScript('XHTML');">xhtml</a></td>
+		<td><a onclick="submitScript('XHTML');">XHTML</a></td>
 		<td><a onclick="submitScript('BMECAT','yes');">BMECAT</a></td>
+		<td><a onclick="submitScript('XHTML','yes');">XHTML</a></td>
 	</tr>	
 </table>
 

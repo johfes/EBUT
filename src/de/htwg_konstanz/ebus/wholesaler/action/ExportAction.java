@@ -13,6 +13,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.w3c.dom.Document;
+
 import de.htwg_konstanz.ebus.framework.wholesaler.api.security.Security;
 import de.htwg_konstanz.ebus.wholesaler.demo.ControllerServlet;
 import de.htwg_konstanz.ebus.wholesaler.demo.IAction;
@@ -53,41 +55,62 @@ public class ExportAction implements IAction {
 					//there was no search string entered
 					if("BMECAT".equals(view)){
 						//User wants BMECAT
-						String path = Export.writeDOMIntoFile(Export.exportWholeCatalog(errorList),context, userId, errorList);
-						if(errorList.isEmpty()){
-							if(("yes").equals(download)){
-								downloadFile(context, path, response, errorList);
-								return "export.jsp";
+						Document document = Export.exportAll(errorList);
+						if(document != null){
+							String path = Export.writeDOMIntoFile(document,context, userId, errorList);
+							
+							if(errorList.isEmpty()){
+								if(("yes").equals(download)){
+									downloadFile("bmecat",context, path, response, errorList);
+									return "export.jsp";
+								}
+								return path;
 							}
-							return path;
 						}
 					}
 					if(("XHTML").equals(view)){
 						//User wants XHTML
-						String path = Export.writeDOMIntoFile(Export.exportWholeCatalog(errorList), context, userId, errorList);
-						path = Export.convertToXHTML(path, context, userId, errorList);
-						if(errorList.isEmpty()){
-							return path;
+						Document document = Export.exportAll(errorList);
+						if(document != null){
+							String path = Export.writeDOMIntoFile(Export.exportAll(errorList), context, userId, errorList);
+							path = Export.convertToXHTML(path, context, userId, errorList);
+							if(errorList.isEmpty()){
+								if(("yes").equals(download)){
+									downloadFile("xhtml", context, path, response, errorList);
+									return "export.jsp";
+								}
+								return path;
+							}
 						}
 					}
 				}
 				else{
 					//Search string was entered 
 					if("BMECAT".equals(view)){
-						String path = Export.writeDOMIntoFile(Export.exportSearch(errorList, search), context, userId, errorList);
-						if(errorList.isEmpty()){
-							if(("yes").equals(download)){
-								downloadFile(context, path, response, errorList);
-								return "export.jsp";
-							}
-							return path;
+						Document document = Export.exportSelective(errorList, search);
+							if(document != null){
+								String path = Export.writeDOMIntoFile(document, context, userId, errorList);
+								if(errorList.isEmpty()){
+									if(("yes").equals(download)){
+										downloadFile("bmecat", context, path, response, errorList);
+										return "export.jsp";
+									}
+									return path;
+								}
 						}
 					}
 					if(("XHTML").equals(view)){
-						String path = Export.writeDOMIntoFile(Export.exportSearch(errorList, search), context, userId, errorList);
-						path = Export.convertToXHTML(path, context, userId, errorList);
-						if(errorList.isEmpty()){
-							return path;
+							Document document = Export.exportSelective(errorList, search);
+							if(document != null){
+								String path = Export.writeDOMIntoFile(Export.exportSelective(errorList, search), context, userId, errorList);
+								path = Export.convertToXHTML(path, context, userId, errorList);
+								if(errorList.isEmpty()){
+									if(("yes").equals(download)){
+										downloadFile("xhtml", context, path, response, errorList);
+										return "export.jsp";
+									}
+									return path;
+								}
 						}
 					}
 				}
@@ -109,11 +132,18 @@ public class ExportAction implements IAction {
 		
 	}
 
-	public void downloadFile(ServletContext context, String path, HttpServletResponse response, ArrayList<String> errorList){
+	public void downloadFile(String filetype, ServletContext context, String path, HttpServletResponse response, ArrayList<String> errorList){
 		try {
-			response.setContentType("text/xml");
-			response.setHeader("Content-Disposition",
-			"attachment;filename=bmecat.xml");
+			if(filetype == "bmecat"){
+				response.setContentType("text/xml");
+				response.setHeader("Content-Disposition",
+				"attachment;filename=bmecat.xml");
+			} else {
+				response.setContentType("text/xhtml");
+				response.setHeader("Content-Disposition",
+				"attachment;filename=xhtml.html");
+			}
+
 			
 			File file = new File(context.getRealPath(path));
 			FileInputStream fileIn = new FileInputStream(file);

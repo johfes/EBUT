@@ -47,7 +47,7 @@ import de.htwg_konstanz.ebus.framework.wholesaler.vo.Currency;
  * @author Johannes Fesenmeyer
  *	import product catalogs (simple BMEcat XML-format)
  */
-public class Import implements IValidator {
+public class Import {
 	
 	/**
 	 * import xml into db
@@ -233,7 +233,7 @@ public class Import implements IValidator {
 			List<BOSupplier> supplierList = SupplierBOA.getInstance().findByCompanyName(suppliers.item(0).getChildNodes().item(0).getNodeValue());
 			
 			if(supplierList.isEmpty()){
-				errorList.add("Supplier" + suppliers.item(0).getChildNodes().item(0).getNodeValue() +"not found in DB!");
+				errorList.add("Supplier " + suppliers.item(0).getChildNodes().item(0).getNodeValue() +" not found in DB!");
 			} else {
 				return supplierList.get(0);
 			}			
@@ -308,7 +308,7 @@ public class Import implements IValidator {
 				if(!item.isFormField()){
 					String filename = FilenameUtils.getName(item.getName());
 					String fileExtension = FilenameUtils.getExtension(item.getName());
-					System.out.println("File: " + filename + "."+ fileExtension);
+					System.out.println("File: " + filename);
 					if(!filename.endsWith(".xml")){
 						errorList.add("Uploaded File is from Type '." + fileExtension + "'. Only XML Files are accepted");
 						inputStream=null;
@@ -326,3 +326,5 @@ public class Import implements IValidator {
 	}
 
 }
+
+

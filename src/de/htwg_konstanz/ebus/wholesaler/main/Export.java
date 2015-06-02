@@ -2,6 +2,7 @@ package de.htwg_konstanz.ebus.wholesaler.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.hibernate.transform.ResultTransformer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -27,22 +29,27 @@ import de.htwg_konstanz.ebus.framework.wholesaler.api.bo.BOProduct;
 import de.htwg_konstanz.ebus.framework.wholesaler.api.bo.BOSalesPrice;
 import de.htwg_konstanz.ebus.framework.wholesaler.api.boa.ProductBOA;
 
+import com.jcabi.w3c.*;
+
 /**
  * Exports whole catalog or articles whose short description matches a given String entered by the user
  * export as XHTML(view) or BMECAT(view or download)
  * @author Johannes Fesenmeyer
  *
  */
-public class Export implements IValidator {
+public class Export {
 	
 	/**
 	 * exports the whole Catalog
 	 * @return Product catalog
 	 */
-	public static Document exportWholeCatalog(ArrayList<String> errorList){
+	public static  Document exportAll(ArrayList<String> errorList){
 		Document document= null;
 		try {
 			 document = createCatalog();
+			 if(!validateDOM(document, errorList)){
+					return null;
+			 }
 		} catch (ParserConfigurationException e) {
 			errorList.add("Error while creating DOM");
 			e.printStackTrace();
@@ -56,10 +63,13 @@ public class Export implements IValidator {
 	 * @param search The Search string
 	 * @return BMECAT conform document
 	 */
-	public static Document exportSearch(ArrayList<String> errorList, String search){
+	public static Document exportSelective(ArrayList<String> errorList, String search){
 		Document document= null;
 		try {
 			 document = createSelectedCatalog(errorList, search);
+			 if(!validateDOM(document, errorList)){
+					return null;
+			 }
 		} catch (ParserConfigurationException e) {
 			errorList.add("Error while creating DOM");
 			e.printStackTrace();
@@ -72,7 +82,7 @@ public class Export implements IValidator {
 	 * @return document The whole Catalog with <b>all</b> entries
 	 * @throws ParserConfigurationException 
 	 */
-	public static Document createCatalog() throws ParserConfigurationException{
+	public static  Document createCatalog() throws ParserConfigurationException{
 		List<BOProduct> productList = ProductBOA.getInstance().findAll();
 		Document document = createDocument();
 		document = createDOMWithoutArticles(document);
@@ -89,19 +99,19 @@ public class Export implements IValidator {
 	 * @return catalog The whole Catalog with <b>Products that match the search String</b> entries
 	 * @throws ParserConfigurationException
 	 */
-	public static Document createSelectedCatalog(ArrayList<String> errorList, String search) throws ParserConfigurationException{
+	public static  Document createSelectedCatalog(ArrayList<String> errorList, String search) throws ParserConfigurationException{
 		List<BOProduct> productList = ProductBOA.getInstance().findAll();
-		Boolean foundOne=false;
+		Boolean articleFound=false;
 		Document document = createDocument();
 		document = createDOMWithoutArticles(document);
 		for(BOProduct bop : productList){
 			if(bop.getShortDescription().toLowerCase().contains(search.toLowerCase())){
-				foundOne=true;
+				articleFound=true;
 				appendArticle(document, bop);
 			}
 		}
-		if(!foundOne){
-			errorList.add("No article with given description: " +search+ " found");
+		if(!articleFound){
+			errorList.add("No article with description containing: " +search+ " found");
 		}
 		return document;
 	}
@@ -114,14 +124,15 @@ public class Export implements IValidator {
 	 * @param errorList
 	 * @return the Path to the File
 	 */
-	public static String convertToXHTML(String xml, ServletContext context, Integer userId, ArrayList<String> errorList){
+	public static  String convertToXHTML(String xml, ServletContext context, Integer userId, ArrayList<String> errorList){
 		String path ="catalog_export"+userId+".XHTML";
 		File file = new File(context.getRealPath(path));
 		try {
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer transformer;
-		transformer = factory.newTransformer(new StreamSource("E:\\Eigene Dateien\\Bildung\\Studium\\Wirtschaftsinformatik\\6\\EBUT\\workspace\\WholesalerWebDemo\\files\\transform.xslt"));
-		transformer.transform(new StreamSource(context.getRealPath(xml)), new StreamResult(file));
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Transformer transformer;
+			transformer = factory.newTransformer(new StreamSource("E:\\Eigene Dateien\\Bildung\\Studium\\Wirtschaftsinformatik\\6\\EBUT\\workspace\\WholesalerWebDemo\\files\\transform.xslt"));
+			StreamResult result = new StreamResult(file);
+			transformer.transform(new StreamSource(context.getRealPath(xml)), result );
 		} catch (TransformerConfigurationException e) {
 			errorList.add("Error while transforming File");
 			e.printStackTrace();
@@ -142,7 +153,7 @@ public class Export implements IValidator {
 	 * @param errorList The errorList to inform User in case of error
 	 * @return the Path to the File
 	 */
-	public static String writeDOMIntoFile(Document document, ServletContext context, Integer userId, ArrayList<String> errorList){
+	public static  String writeDOMIntoFile(Document document, ServletContext context, Integer userId, ArrayList<String> errorList){
 		String path="catalog_export"+userId+".XML";
 		File file=null;
 		try {
@@ -170,7 +181,7 @@ public class Export implements IValidator {
 	 * @return empty document The empty document
 	 * @throws ParserConfigurationException If Document couldn't be created
 	 */
-	public static Document createDocument() throws ParserConfigurationException{
+	public static  Document createDocument() throws ParserConfigurationException{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document document = db.newDocument();
@@ -183,13 +194,12 @@ public class Export implements IValidator {
 	 * @return document The BasisDOM Document 
 	 * @throws ParserConfigurationException If Document couldn't be created
 	 */
-	public static Document createDOMWithoutArticles(Document document) throws ParserConfigurationException{
+	public static  Document createDOMWithoutArticles(Document document) throws ParserConfigurationException{
 		
 		//Create ROOT-Element with attributes
 		Element root = document.createElement("BMECAT");
 		root.setAttribute("version", "1.2");
 		root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-		root.setAttribute("xsi:noNamespaceSchemaLocation", "files/bmecat_new_catalog_1_2_simple_without_NS.xsd");
 		//Append ROOT-Element to our document
 		document.appendChild(root);
 		
@@ -291,10 +301,12 @@ public class Export implements IValidator {
 		
 		//Create DESCRIPTION_LONG-Element
 		Element description_long = document.createElement("DESCRIPTION_LONG");
-		//Insert content for DESCRIPTION_LONG
-		description_long.insertBefore(document.createTextNode(product.getLongDescription()), description_long.getLastChild());
-		//Append DESCRIPTION_LONG to "ARTICLE_DETAILS"
-		article_details.appendChild(description_long);
+		if(product.getLongDescription() != null){
+			//Insert content for DESCRIPTION_LONG
+			description_long.insertBefore(document.createTextNode(product.getLongDescription()), description_long.getLastChild());
+			//Append DESCRIPTION_LONG to "ARTICLE_DETAILS"
+			article_details.appendChild(description_long);
+		}
 		
 		//Create EAN-Element
 		Element ean = document.createElement("EAN");
@@ -384,8 +396,7 @@ public class Export implements IValidator {
 
 	}
 
-	@Override
-	public boolean validateDOM(Document document, ArrayList<String> errorList) {
+	public static boolean validateDOM(Document document, ArrayList<String> errorList) {
 		boolean isValid = false;
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		Validator validator = null;
@@ -397,7 +408,7 @@ public class Export implements IValidator {
 			validator.validate(new DOMSource(document)); //if the validation fails an exception is thrown
 			isValid = true;
 		} catch (SAXException e) {
-			errorList.add("The Uploaded XML File is not valid!");
+			errorList.add("The XML File you tried to export is not valid!");
 			e.printStackTrace();
 		} catch (IOException e) {
 			errorList.add("Error while reading DOM");

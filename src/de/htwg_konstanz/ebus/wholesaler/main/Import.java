@@ -120,14 +120,15 @@ public class Import {
 			//find the same product in db
 			BOProduct sameProductInDB = ProductBOA.getInstance().findByOrderNumberSupplier(product.getOrderNumberSupplier());
 			
-			if(sameProductInDB != null & !sameProductInDB.equals(product)){
-				if()
-				//Product already in DB
-				deleteProduct(sameProductInDB);
-				ProductBOA.getInstance().saveOrUpdate(product);
-				insertProductPricesIntoDB(document, errorList, product);
-				errorList.add("INFO: Product " + product.getShortDescription() + " updated");
-				countUpdated++;
+			if(sameProductInDB != null){
+				if(!sameProductInDB.equals(product)){
+					//Product already in DB
+					deleteProduct(sameProductInDB);
+					ProductBOA.getInstance().saveOrUpdate(product);
+					insertProductPricesIntoDB(document, errorList, product);
+					errorList.add("INFO: Product " + product.getShortDescription() + " updated");
+					countUpdated++;
+				}
 			} else {
 				//Product not in DB
 				ProductBOA.getInstance().saveOrUpdate(product);
@@ -136,7 +137,7 @@ public class Import {
 				countAdded++;
 			}
 		}	 
-		errorList.add("INFO: Summary: "+countUpdated+ " products updated,"+countAdded+" added");	
+		errorList.add("INFO: Summary: "+countUpdated+ " products updated, "+countAdded+" added");	
 		//always do a commit -> commits and closes transaction
 		_BaseBOA.getInstance().commit();
 		return product;	

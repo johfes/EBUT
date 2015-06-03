@@ -34,7 +34,7 @@ import com.jcabi.w3c.*;
 /**
  * Exports whole catalog or articles whose short description matches a given String entered by the user
  * export as XHTML(view) or BMECAT(view or download)
- * @author Johannes Fesenmeyer
+ * @author Johannes Fesenmeyer, Lei Xu
  *
  */
 public class Export {
@@ -60,7 +60,7 @@ public class Export {
 	/**
 	 * exports the Catalog with articles that match a search string
 	 * @param errorList the ErrorList to inform user
-	 * @param search The Search string
+	 * @param search the Search string
 	 * @return BMECAT conform document
 	 */
 	public static Document exportSelective(ArrayList<String> errorList, String search){
@@ -118,21 +118,20 @@ public class Export {
 	
 	/**
 	 * Converts XML to W3C valid XHTML 
-	 * @param xml
+	 * @param pathXML
 	 * @param context
 	 * @param userId
 	 * @param errorList
 	 * @return the Path to the File
 	 */
-	public static  String convertToXHTML(String xml, ServletContext context, Integer userId, ArrayList<String> errorList){
+	public static  String convertToXHTML(String pathXML, ServletContext context, Integer userId, ArrayList<String> errorList){
 		String path ="catalog_export"+userId+".XHTML";
 		File file = new File(context.getRealPath(path));
 		try {
 			TransformerFactory factory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = factory.newTransformer(new StreamSource("E:\\Eigene Dateien\\Bildung\\Studium\\Wirtschaftsinformatik\\6\\EBUT\\workspace\\WholesalerWebDemo\\files\\transform.xslt"));
-			StreamResult result = new StreamResult(file);
-			transformer.transform(new StreamSource(context.getRealPath(xml)), result );
+			transformer.transform(new StreamSource(context.getRealPath(pathXML)), new StreamResult(file));
 		} catch (TransformerConfigurationException e) {
 			errorList.add("Error while transforming File");
 			e.printStackTrace();
@@ -283,7 +282,7 @@ public class Export {
 		//Create SUPPLIER_AID-Element
 		Element supplier_aid = document.createElement("SUPPLIER_AID");
 		//Insert content for SUPPLIER_AID
-		supplier_aid.insertBefore(document.createTextNode(product.getOrderNumberSupplier()), supplier_aid.getLastChild());
+		supplier_aid.insertBefore(document.createTextNode(product.getOrderNumberCustomer()), supplier_aid.getLastChild()); //export for customer
 		//Append SUPPLIER_AID to "ARTICLE"
 		article.appendChild(supplier_aid);
 		
@@ -322,21 +321,21 @@ public class Export {
 		
 		//Create ORDER_UNIT-Element
 		Element order_unit = document.createElement("ORDER_UNIT");
-		//Insert content for ORDER_UNIT --> Text Content has to be a valid value of a given enumeration
+		//Insert content for ORDER_UNIT --> Text Content has to be a valid value of  given enumeration
 		order_unit.insertBefore(document.createTextNode("05"), order_unit.getLastChild());
 		//Append ORDER_UNIT to "ARTICLE_ORDER_DETAILS"
 		article_order_details.appendChild(order_unit);
 		
 		//Create CONTENT_UNIT-Element
 		Element content_unit = document.createElement("CONTENT_UNIT");
-		//Insert content for CONTENT_UNIT --> Text Content has to be a valid value of a given enumeration
+		//Insert content for CONTENT_UNIT --> Text Content has to be a valid value of  given enumeration
 		content_unit.insertBefore(document.createTextNode("05"), content_unit.getLastChild());
 		//Append CONTENT_UNIT to "ARTICLE_ORDER_DETAILS"
 		article_order_details.appendChild(content_unit);
 		
 		//Create NO_CU_PER_OU-Element
 		Element no_cu_per_ou = document.createElement("NO_CU_PER_OU");
-		//Insert content for NO_CU_PER_OU --> Text Content has to be a valid value of a given enumeration
+		//Insert content for NO_CU_PER_OU --> Text Content has to be a valid value of given enumeration
 		no_cu_per_ou.insertBefore(document.createTextNode("05"), no_cu_per_ou.getLastChild());
 		//Append NO_CU_PER_OU to "ARTICLE_ORDER_DETAILS"
 		article_order_details.appendChild(no_cu_per_ou);
@@ -396,6 +395,12 @@ public class Export {
 
 	}
 
+	/**
+	 * validates DOM against bmecat xsd
+	 * @param document
+	 * @param errorList
+	 * @return
+	 */
 	public static boolean validateDOM(Document document, ArrayList<String> errorList) {
 		boolean isValid = false;
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

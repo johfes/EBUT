@@ -23,8 +23,9 @@ import de.htwg_konstanz.ebus.wholesaler.demo.util.Constants;
 import de.htwg_konstanz.ebus.wholesaler.main.Export;
 
 /**
- * @author Johannes Fesenmeyer
- *
+ * action for Export
+ * @author Johannes Fesenmeyer, Lei Xu
+ * 
  */
 public class ExportAction implements IAction {
 
@@ -62,7 +63,6 @@ public class ExportAction implements IAction {
 							if(errorList.isEmpty()){
 								if(("yes").equals(download)){
 									downloadFile("bmecat",context, path, response, errorList);
-									return "export.jsp";
 								}
 								return path;
 							}
@@ -77,7 +77,6 @@ public class ExportAction implements IAction {
 							if(errorList.isEmpty()){
 								if(("yes").equals(download)){
 									downloadFile("xhtml", context, path, response, errorList);
-									return "export.jsp";
 								}
 								return path;
 							}
@@ -93,7 +92,6 @@ public class ExportAction implements IAction {
 								if(errorList.isEmpty()){
 									if(("yes").equals(download)){
 										downloadFile("bmecat", context, path, response, errorList);
-										return "export.jsp";
 									}
 									return path;
 								}
@@ -107,7 +105,6 @@ public class ExportAction implements IAction {
 								if(errorList.isEmpty()){
 									if(("yes").equals(download)){
 										downloadFile("xhtml", context, path, response, errorList);
-										return "export.jsp";
 									}
 									return path;
 								}
@@ -132,6 +129,14 @@ public class ExportAction implements IAction {
 		
 	}
 
+	/**
+	 * download file
+	 * @param filetype type of file
+	 * @param context ServletContext
+	 * @param path the path to the file as string
+	 * @param response HttpServletResponse
+	 * @param errorList list of user notifications
+	 */
 	public void downloadFile(String filetype, ServletContext context, String path, HttpServletResponse response, ArrayList<String> errorList){
 		try {
 			if(filetype == "bmecat"){
@@ -151,7 +156,7 @@ public class ExportAction implements IAction {
 			int bytesRead;
 
 			byte[] bytes = new byte[4096];
-			// copy binary contect to output stream
+			// copy binary context to output stream
 			while ((bytesRead = fileIn.read(bytes)) != -1) {
 			    out.write(bytes, 0, bytesRead);
 			}

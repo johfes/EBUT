@@ -44,7 +44,7 @@ import de.htwg_konstanz.ebus.framework.wholesaler.vo.Currency;
 
 /**
  * 
- * @author Johannes Fesenmeyer
+ * @author Johannes Fesenmeyer, Lei Xu
  *	import product catalogs (simple BMEcat XML-format)
  */
 public class Import {
@@ -63,7 +63,7 @@ public class Import {
 		Document document = getDOMFromInputStream(inputStream, errorList);
 		if(document != null){
 			if(validateDOM(document, errorList)){
-				BOSupplier supplier = getSupplier(document, errorList);
+				BOSupplier supplier = checkIfSupplierExists(document, errorList);
 				if(supplier != null){
 					System.out.println("LOAD SUPPLIER != NULL");
 					insertProductsIntoDB(document, errorList, supplier);
@@ -81,13 +81,15 @@ public class Import {
 	 * @param document the BMECAT document
 	 * @param errorList for User notification
 	 * @param supplier the supplier of the product
-	 * @return
+	 * @return product which has been inserted
 	 */
 	public BOProduct insertProductsIntoDB(Document document, List<String> errorList, BOSupplier supplier){
 		System.out.println("insert Products Into DB.......");
 		//Get all Articles from the uploaded catalog
 		NodeList articleList = document.getElementsByTagName("ARTICLE");
 		BOProduct product = null;
+		int countAdded = 0;
+		int countUpdated = 0;
 		//Iterate over every "ARTICLE" in catalog 
 		for(int i = 0; i < articleList.getLength(); i++){
 			product=new BOProduct();   //create new product
@@ -95,8 +97,9 @@ public class Import {
 			
 			//get "SUPPLIER_AID" and set the value for product
 			NodeList supplier_aid = article.getElementsByTagName("SUPPLIER_AID");
-			product.setOrderNumberSupplier(supplier_aid.item(0).getChildNodes().item(0).getNodeValue());
-			product.setOrderNumberCustomer(supplier_aid.item(0).getChildNodes().item(0).getNodeValue());
+			//supplier_aid has been changed in order to differ between supplierOrderNumber and customerOrderNumber and to ensure offering same products from different customers
+			product.setOrderNumberSupplier("s"+supplier.getSupplierNumber()+supplier_aid.item(0).getChildNodes().item(0).getNodeValue()); 
+			product.setOrderNumberCustomer("c"+supplier.getSupplierNumber()+supplier_aid.item(0).getChildNodes().item(0).getNodeValue());
 			System.out.println("supplier_aid " + product.getOrderNumberSupplier());		
 			product.setSupplier(supplier);
 			
@@ -115,27 +118,35 @@ public class Import {
 			//inventory??
 			
 			//find the same product in db
-			List<BOProduct> sameProductsInDB = ProductBOA.getInstance().findByShortdescription(product.getShortDescription());
+			BOProduct sameProductInDB = ProductBOA.getInstance().findByOrderNumberSupplier(product.getOrderNumberSupplier());
 			
-			if(!sameProductsInDB.isEmpty()){
+			if(sameProductInDB != null & !sameProductInDB.equals(product)){
+				if()
 				//Product already in DB
-				deleteProduct(sameProductsInDB.get(0));
+				deleteProduct(sameProductInDB);
 				ProductBOA.getInstance().saveOrUpdate(product);
 				insertProductPricesIntoDB(document, errorList, product);
 				errorList.add("INFO: Product " + product.getShortDescription() + " updated");
-
+				countUpdated++;
 			} else {
 				//Product not in DB
 				ProductBOA.getInstance().saveOrUpdate(product);
 				insertProductPricesIntoDB(document, errorList, product);
-				errorList.add("INFO: Product " + product.getShortDescription() + " added");
+				errorList.add("INFO: Product " + product.getShortDescription() + " added");		
+				countAdded++;
 			}
 		}	 
+		errorList.add("INFO: Summary: "+countUpdated+ " products updated,"+countAdded+" added");	
 		//always do a commit -> commits and closes transaction
 		_BaseBOA.getInstance().commit();
 		return product;	
 	}
 	
+	/**
+	 * checks if xml tag exists
+	 * @param nodes
+	 * @return true or false
+	 */
 	private boolean tagExists(NodeList nodes){
 		if(nodes.getLength()>0){
 			Node node = nodes.item(0);
@@ -222,7 +233,7 @@ public class Import {
 	 * @param errorList user notification
 	 * @return corresponding supplier from db, if not found -> null
 	 */
-	private BOSupplier getSupplier(Document document, ArrayList<String> errorList) {
+	private BOSupplier checkIfSupplierExists(Document document, ArrayList<String> errorList) {
 		//get suppliers in document
 		NodeList suppliers = document.getElementsByTagName("SUPPLIER_NAME");
 
@@ -241,7 +252,12 @@ public class Import {
 		return null;
 	}
 
-
+	/**
+	 * validates DOM against bmecat xsd
+	 * @param document
+	 * @param errorList
+	 * @return true or false
+	 */
 	public boolean validateDOM(Document document, ArrayList<String> errorList) {
 		boolean isValid = false;
 		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -294,6 +310,12 @@ public class Import {
 		
 	}
 
+	/**
+	 * uploads file and gets input stream from the file
+	 * @param request HttpServletRequest
+	 * @param errorList user notification
+	 * @return inputStream from upload
+	 */
 	private InputStream getInputStreamFromUpload(HttpServletRequest request,
 			ArrayList<String> errorList) {
 		//Factory and Servlet for FileUpload
